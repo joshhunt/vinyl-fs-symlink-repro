@@ -1,9 +1,23 @@
-var map = require("map-stream");
-var vfs = require("vinyl-fs");
+const map = require("map-stream");
+const vfs = require("vinyl-fs");
+const gs = require("glob-stream");
 
-var log = function (file, cb) {
-  console.log(file.path.replace(process.cwd(), ""));
-  cb(null, file);
-};
+console.log("vinyl-fs:");
+const vpipe = vfs.src(["./test/**/*.js"]).pipe(
+  map((file, cb) => {
+    console.log(file.path.replace(process.cwd(), ""));
+    cb(null, file);
+  })
+);
 
-vfs.src(["./test/**/*.js"]).pipe(map(log));
+vpipe.on("end", () => {
+  console.log("");
+  console.log("glob-stream:");
+
+  gs("./test/**/*.js").pipe(
+    map((file, cb) => {
+      console.log(file.path.replace(process.cwd(), ""));
+      cb(null, file);
+    })
+  );
+});
